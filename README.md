@@ -311,7 +311,7 @@ Extracting the runtime type of a field contained in each member of a union
 const pluck = <F extends string, U extends t.UnionType<Array<t.InterfaceType<{ [K in F]: t.Any }, any>>, any>>(
   union: U,
   field: F
-): t.Type<any, t.TypeOf<U>[F]> => {
+): t.Type<t.mixed, t.TypeOf<U>[F]> => {
   return t.union(union.types.map(type => type.props[field]))
 }
 
@@ -330,31 +330,8 @@ export const Action = t.union([
   })
 ])
 
-// ActionType: t.Type<any, "Action1" | "Action2">
+// ActionType: t.Type<t.mixed, "Action1" | "Action2">
 const ActionType = pluck(Action, 'type')
-```
-
-# Recipes
-
-## Is there a way to turn the checks off in production code?
-
-No, however you can define your own logic for that (if you _really_ trust the input)
-
-```ts
-import * as t from 'io-ts'
-import { failure } from 'io-ts/lib/PathReporter'
-
-const { NODE_ENV } = process.env
-
-export function unsafeValidate<S, A>(value: any, type: t.Type<S, A>): A {
-  if (NODE_ENV !== 'production') {
-    return t.validate(value, type).getOrElse(errors => {
-      throw new Error(failure(errors).join('\n'))
-    })
-  }
-  // unsafe cast
-  return value as A
-}
 ```
 
 # Known issues
