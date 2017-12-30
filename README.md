@@ -18,18 +18,20 @@ class Type<S, A> {
 where `Validate<A>` is a specific validation function for the type `A`
 
 ```js
+export type mixed = object | number | string | boolean | symbol | undefined | null
+
 export interface ContextEntry {
   readonly key: string
   readonly type: Any | NeverType
 }
 export type Context = Array<ContextEntry>
 export interface ValidationError {
-  readonly value: any
+  readonly value: mixed
   readonly context: Context
 }
 export type Errors = Array<ValidationError>
 export type Validation<A> = Either<Errors, A>
-export type Is<A> = (v: any) => v is A
+export type Is<A> = (v: mixed) => v is A
 export type Validate<S, A> = (s: S, context: Context) => Validation<A>
 export type Serialize<S, A> = (a: A) => S
 ```
@@ -44,7 +46,7 @@ A runtime type representing `string` can be defined as
 ```js
 import * as t from 'io-ts'
 
-export class StringType extends Type<any, string> {
+export class StringType extends Type<mixed, string> {
   constructor() {
     super(
       'string',
@@ -173,9 +175,9 @@ import * as t from 'io-ts'
 | never                 | `never`                                 | `empty`                                 | `t.never`                                                         |
 | object                | `object`                                | ✘                                       | `t.object`                                                        |
 | integer               | ✘                                       | ✘                                       | `t.Integer`                                                       |
-| array of any          | `Array<any>`                            | `Array<any>`                            | `t.Array`                                                         |
+| array of any          | `Array<mixed>`                          | `Array<mixed>`                          | `t.Array`                                                         |
 | array of type         | `Array<A>`                              | `Array<A>`                              | `t.array(A)`                                                      |
-| dictionary of any     | `{ [key: string]: any }`                | `{ [key: string]: any }`                | `t.Dictionary`                                                    |
+| dictionary of any     | `{ [key: string]: mixed }`              | `{ [key: string]: mixed }`              | `t.Dictionary`                                                    |
 | dictionary of type    | `{ [K in A]: B }`                       | `{ [key: A]: B }`                       | `t.dictionary(A, B)`                                              |
 | function              | `Function`                              | `Function`                              | `t.Function`                                                      |
 | literal               | `'s'`                                   | `'s'`                                   | `t.literal('s')`                                                  |
@@ -267,7 +269,7 @@ You can define your own types. Let's see an example
 import * as t from 'io-ts'
 
 // represents a Date from an ISO string
-const DateFromString = new t.Type<any, Date>(
+const DateFromString = new t.Type<t.mixed, Date>(
   'DateFromString',
   (v): v is Date => v instanceof Date,
   (v, c) =>
